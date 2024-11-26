@@ -3,12 +3,15 @@ package page.object;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.refreshed;
 
 public class Header {
     public final WebDriver driver;
@@ -18,11 +21,11 @@ public class Header {
         this.driver = driver;
     }
 
-
     public boolean checkSearchFieldVisibility() {
         WebElement searchField = driver.findElement(By.id("search-bar"));
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        return wait.until(ExpectedConditions.visibilityOf(searchField)).isDisplayed();
+        wait.until(ExpectedConditions.visibilityOf(searchField));
+        return searchField.isDisplayed();
     }
 
     public void sendTextToTheSearchField(String text) {
@@ -33,25 +36,54 @@ public class Header {
 
     public String getInputInTheSearchField() {
         WebElement searchField = driver.findElement(By.id("search-bar"));
-        return searchField.getText();
+        String searchText = searchField.getAttribute("value");
+        return searchText;
     }
 
-    public boolean isTextPresent(String input) {
+    public boolean isTextPresent() {
         WebElement searchField = driver.findElement(By.id("search-bar"));
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        return wait.until(ExpectedConditions.textToBePresentInElement(searchField,input));
+        wait.until(ExpectedConditions.visibilityOf(searchField));
+        String text = searchField.getAttribute("value");
+        boolean isTextPresent = false;
+        if (!text.isEmpty()) {
+            isTextPresent = true;
+        }
+        return isTextPresent;
     }
 
     public boolean isDropDownVisible() {
         WebElement dropDownMenu = driver.findElement(By.className("dropdown-container"));
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        return wait.until(ExpectedConditions.visibilityOf(dropDownMenu)).isDisplayed();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        ExpectedCondition<WebElement> dropDown = ExpectedConditions.visibilityOf(dropDownMenu);
+        wait.until(refreshed(dropDown));
+        return dropDownMenu.isDisplayed();
     }
 
-    public String getUsersSuggestions() {
-        WebElement userSuggestion = driver.findElement(By.className("post-user"));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(40));
-        return userSuggestion.getText();
+    public ArrayList<String> getUsersSuggestions() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(180));
+        ExpectedCondition<List<WebElement>> condition = ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector(".dropdown-user .post-user"));
+        List<WebElement> suggestions = wait.until(refreshed(condition));
+        ArrayList<String> userNames = new ArrayList<>();
+        for (WebElement suggestion : suggestions) {
+            String userName = suggestion.getText();
+            userNames.add(userName);
+        }
+        return userNames;
+    }
+
+    public void clickOnUser() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+        ExpectedCondition<List<WebElement>> condition = ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector(".dropdown-user .post-user"));
+        List<WebElement> suggestions = wait.until(refreshed(condition));
+        suggestions.getFirst().click();
+    }
+
+    public void clickOnFollowButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(45));
+        ExpectedCondition<WebElement> button = ExpectedConditions.elementToBeClickable(driver.findElement(By.cssSelector(".btn-primary")));
+        WebElement followButton = wait.until(refreshed(button));
+        followButton.click();
     }
 
 }
