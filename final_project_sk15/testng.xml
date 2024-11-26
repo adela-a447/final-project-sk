@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="Search tests suite" verbose="7">
+    <test name="SearchField Tests">
+        <classes>
+            <class name="SearchUserTests"></class>
+            <class name="TypingTests"></class>
+            <class name="UserInteractionTests"></class>
+        </classes>
+    </test>
+</suite>
