@@ -1,0 +1,1 @@
+This folder is used to store as a resource all screenshot files that are generated when tests fail.
